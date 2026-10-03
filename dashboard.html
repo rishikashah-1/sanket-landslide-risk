@@ -1,0 +1,2095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SANKET — Landslide Early Warning System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --color-bg: #060d15;
+  --color-bg-alt: #00070f;
+  --color-surface: #131a20;
+  --color-surface-alt: #0c1a27;
+  --color-surface-raised: #0b1822;
+  --color-border: #1c2733;
+  --color-border-soft: rgba(225,235,240,0.15);
+  --color-text: #ffffff;
+  --color-text-dim: #a6adb8;
+  --color-text-mute: #73808c;
+  --color-accent: #1457eb;
+  --color-critical: #f23626;
+  --color-critical-dark: #521c2a;
+  --color-high: #ee8409;
+  --color-high-dark: #5d3915;
+  --color-moderate: #f3c600;
+  --color-moderate-dark: #7d6314;
+  --color-low: #4caa38;
+  --color-low-dark: #103630;
+  --color-info-blue: #1f83de;
+
+  /* spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 64px;
+
+  /* radius */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
+  --radius-pill: 999px;
+
+  /* font sizes (desktop) */
+  --fs-xs: 0.7rem;
+  --fs-sm: 0.8rem;
+  --fs-base: 0.95rem;
+  --fs-md: 1.1rem;
+  --fs-lg: 1.35rem;
+  --fs-xl: 1.75rem;
+  --fs-2xl: 2.4rem;
+  --fs-3xl: 3.2rem;
+
+  /* layout */
+  --sidebar-w: 260px;
+  --topbar-h: 84px;
+
+  --font-display: 'Poppins', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  --shadow-card: 0 8px 24px rgba(0,0,0,0.35);
+}
+
+*,*::before,*::after{ box-sizing: border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+img{ max-width:100%; display:block; }
+a{ color:inherit; text-decoration:none; }
+button{ font-family:inherit; cursor:pointer; }
+ul{ list-style:none; margin:0; padding:0; }
+h1,h2,h3,p{ margin:0; }
+
+.visually-hidden{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+/* =========================================================
+   APP SHELL
+========================================================= */
+.app{
+  display:grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  grid-template-rows: var(--topbar-h) 1fr;
+  grid-template-areas:
+    "sidebar topbar"
+    "sidebar main";
+  min-height:100vh;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+.sidebar{
+  grid-area: sidebar;
+  background: var(--color-bg-alt);
+  border-right: 1px solid var(--color-border-soft);
+  display:flex;
+  flex-direction:column;
+  padding: var(--space-6) 0 var(--space-5);
+  position: sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+  z-index: 30;
+}
+
+.sidebar__brand{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap: var(--space-2);
+  padding: 0 var(--space-5) var(--space-6);
+}
+.sidebar__brand-icon{
+  width:64px; height:64px;
+  border-radius:50%;
+  border:2px solid #fff;
+  display:flex; align-items:center; justify-content:center;
+  background: var(--color-bg-alt);
+}
+.sidebar__brand-icon svg{ width:36px; height:36px; }
+.sidebar__brand-name{
+  font-family: var(--font-body);
+  font-weight:700;
+  letter-spacing: 3px;
+  font-size: 1.65rem;
+  font-style: italic;
+}
+
+.sidebar__nav{
+  display:flex;
+  flex-direction:column;
+  flex:1;
+}
+.sidebar__item{
+  display:flex;
+  align-items:center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  font-weight:700;
+  font-size: var(--fs-md);
+  color: var(--color-text);
+  border:none;
+  background:transparent;
+  width:100%;
+  text-align:left;
+  border-radius: 0;
+}
+.sidebar__item svg{ width:22px; height:22px; flex-shrink:0; fill: currentColor; }
+.sidebar__item:hover{ background: rgba(255,255,255,0.06); }
+.sidebar__item--active{
+  background: var(--color-accent);
+  border-radius: var(--radius-sm);
+  margin: 0 var(--space-3);
+  width: calc(100% - var(--space-3) * 2);
+}
+.sidebar__item--active:hover{ background: var(--color-accent); }
+
+.sidebar__status{
+  margin: var(--space-6) var(--space-5) 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+.sidebar__status-title{
+  display:flex;
+  align-items:center;
+  gap: var(--space-2);
+  font-weight:700;
+  font-size: var(--fs-base);
+  margin-bottom: var(--space-2);
+}
+.sidebar__status-dot{
+  width:12px; height:12px; border-radius:50%;
+  background: var(--color-low);
+  box-shadow: 0 0 8px var(--color-low);
+}
+.sidebar__status-text{ color: var(--color-low); font-weight:700; font-size: var(--fs-sm); margin-bottom: var(--space-1); }
+.sidebar__status-time{ color: var(--color-text-dim); font-weight:300; font-size: var(--fs-xs); }
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+.topbar{
+  grid-area: topbar;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 0 var(--space-7);
+  border-bottom: 1px solid var(--color-border-soft);
+  position: sticky;
+  top:0;
+  background: var(--color-bg);
+  z-index: 20;
+}
+.topbar__left{ display:flex; align-items:center; gap: var(--space-4); }
+.topbar__hamburger{
+  display:none;
+  background:none; border:none; color:#fff;
+  padding: var(--space-2);
+}
+.topbar__hamburger svg{ width:28px; height:28px; }
+.topbar__title{ font-family: var(--font-display); font-weight:600; font-size: var(--fs-xl); }
+.topbar__subtitle{ font-size: var(--fs-sm); color: var(--color-text-dim); margin-top:2px; }
+.topbar__right{ display:flex; align-items:center; gap: var(--space-6); }
+.topbar__bell{ position:relative; }
+.topbar__bell svg{ width:28px; height:28px; }
+.topbar__admin{ display:flex; align-items:center; gap: var(--space-3); }
+.topbar__avatar{
+  width:44px; height:44px; border-radius:50%;
+  background:#3a3f44; display:flex; align-items:center; justify-content:center;
+}
+.topbar__avatar svg{ width:24px; height:24px; }
+.topbar__admin-name{ font-family: var(--font-display); font-weight:600; font-size: var(--fs-md); }
+
+/* =========================================================
+   MAIN / PAGES
+========================================================= */
+.main{
+  grid-area: main;
+  padding: var(--space-7);
+  overflow-x:hidden;
+}
+.page{ display:none; }
+.page--active{ display:block; }
+
+.page__heading{
+  font-family: var(--font-display);
+  font-weight:600;
+  font-size: var(--fs-2xl);
+  margin-bottom: var(--space-2);
+}
+.page__intro{ color: var(--color-text-dim); font-size: var(--fs-md); margin-bottom: var(--space-6); }
+
+/* generic card */
+.card{
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+}
+.card__title{ font-family: var(--font-display); font-weight:600; font-size: var(--fs-lg); margin-bottom: var(--space-4); }
+
+/* =========================================================
+   STAT GRID (dashboard / live-monitoring)
+========================================================= */
+.stat-grid{
+  display:grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
+}
+.stat-grid--4{ grid-template-columns: repeat(4,1fr); }
+.stat-card{
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-5);
+  min-height:150px;
+  display:flex;
+  flex-direction:column;
+  gap: var(--space-2);
+}
+.stat-card__head{ display:flex; align-items:center; gap: var(--space-3); }
+.stat-card__icon{ width:34px; height:34px; flex-shrink:0; }
+.stat-card__icon svg{ width:100%; height:100%; }
+.stat-card__label{ font-weight:700; font-size: var(--fs-md); }
+.stat-card__value{ font-size: var(--fs-2xl); font-weight:800; line-height:1; }
+.stat-card__value--sm{ font-size: var(--fs-xl); font-weight:600; }
+.stat-card__sub{ font-weight:300; font-size: var(--fs-md); }
+.stat-card__tag{ font-weight:700; font-size: var(--fs-sm); display:flex; align-items:center; gap:6px; }
+
+.text-critical{ color: var(--color-critical); }
+.text-high{ color: var(--color-high); }
+.text-moderate{ color: var(--color-moderate); }
+.text-low{ color: var(--color-low); }
+.text-blue{ color: var(--color-info-blue); }
+.text-dim{ color: var(--color-text-dim); }
+
+/* risk ring */
+.risk-ring{
+  --pct: 78;
+  width:56px; height:56px; border-radius:50%;
+  background: conic-gradient(var(--color-critical) calc(var(--pct)*1%), rgba(255,255,255,0.12) 0);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.risk-ring::after{
+  content:"";
+  width:40px; height:40px; border-radius:50%;
+  background: var(--color-surface);
+}
+
+/* =========================================================
+   DASHBOARD LAYOUT: map + alerts
+========================================================= */
+.dash-row{
+  display:grid;
+  grid-template-columns: 2.3fr 1fr;
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
+}
+.map-card__label{
+  position:absolute; top: var(--space-4); left: var(--space-4);
+  background: rgba(0,0,0,0.55); padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm); font-weight:600; font-size: var(--fs-base);
+}
+.map-card__controls{
+  position:absolute; top: var(--space-4); right: var(--space-4);
+  display:flex; flex-direction:column; gap: var(--space-2);
+}
+.map-card__controls button{
+  width:38px; height:38px; border-radius:8px; border:none;
+  background: rgba(255,255,255,0.92); color:#111; font-weight:700; font-size:1.1rem;
+}
+.map-card__legend{
+  position:absolute; bottom: var(--space-4); right: var(--space-4);
+  background: rgba(6,13,21,0.85); border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4); font-size: var(--fs-xs);
+}
+.map-card__legend-title{ font-weight:600; margin-bottom: var(--space-2); }
+.legend-row{ display:flex; align-items:center; gap: var(--space-2); margin-bottom: 4px; }
+.legend-dot{ width:10px; height:10px; border-radius:50%; }
+
+.alerts-panel{
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  display:flex; flex-direction:column; gap: var(--space-3);
+}
+.alerts-panel__head{ display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--space-2); }
+.alerts-panel__head h3{ font-family: var(--font-display); font-weight:500; font-size: var(--fs-lg); }
+.alerts-panel__viewall{ color:#5d9f7f; font-weight:600; font-size: var(--fs-sm); }
+
+.mini-alert{
+  border:1px solid rgba(255,255,255,0.25);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+.mini-alert--critical{ background: var(--color-critical-dark); }
+.mini-alert--high{ background: var(--color-high-dark); }
+.mini-alert--moderate{ background: var(--color-moderate-dark); }
+.mini-alert--low{ background: #16371f; }
+.mini-alert__top{ display:flex; align-items:center; justify-content:space-between; gap: var(--space-2); }
+.mini-alert__title{ font-family: var(--font-display); font-size: var(--fs-base); display:flex; align-items:center; gap:6px; }
+.mini-alert__badge{ font-size: var(--fs-xs); font-weight:700; padding: 2px 10px; border-radius: 6px; color:#000; white-space:nowrap; }
+.badge--critical{ background: var(--color-critical); color:#fff; }
+.badge--high{ background: var(--color-high); }
+.badge--moderate{ background: var(--color-moderate); }
+.badge--low{ background: var(--color-low); color:#fff; }
+.mini-alert__meta{ font-size: var(--fs-xs); color: rgba(255,255,255,0.85); margin-top:4px; }
+
+/* =========================================================
+   SENSOR READINGS ROW
+========================================================= */
+.sensor-row{
+  display:grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
+}
+.sensor-card{
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  min-height: 150px;
+}
+.sensor-card__head{ display:flex; align-items:center; gap: var(--space-3); margin-bottom: var(--space-2); }
+.sensor-card__icon{ font-size:1.5rem; }
+.sensor-card__label{ font-family: var(--font-display); font-weight:500; font-size: var(--fs-md); }
+.sensor-card__value{ font-size: var(--fs-xl); margin-bottom: var(--space-2); }
+.sparkline{ width:100%; height:34px; display:block; }
+
+/* =========================================================
+   BOTTOM ROW: quick actions + emergency
+========================================================= */
+.bottom-row{
+  display:grid;
+  grid-template-columns: 2.7fr 1fr;
+  gap: var(--space-5);
+}
+.quick-actions{
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display:flex;
+  align-items:center;
+  gap: var(--space-4);
+  flex-wrap:wrap;
+}
+.quick-actions__title{ font-family: var(--font-display); font-weight:700; font-size: var(--fs-md); margin-right: var(--space-3); }
+.quick-action-btn{
+  background: var(--color-low-dark);
+  color:#fff;
+  border:none;
+  border-radius: var(--radius-pill);
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--fs-sm);
+  display:flex; align-items:center; gap: var(--space-2);
+}
+.emergency-card{
+  background: var(--color-critical-dark);
+  border-radius: var(--radius-lg);
+  display:flex; align-items:center; justify-content:space-between;
+  padding: var(--space-5);
+  font-family: var(--font-display); font-weight:600; font-size: var(--fs-md);
+}
+
+/* =========================================================
+   CHART CARD (risk trend line)
+========================================================= */
+.chart-card{ background: var(--color-surface); border-radius: var(--radius-xl); padding: var(--space-5); }
+.chart-card svg{ width:100%; height:auto; display:block; }
+
+/* =========================================================
+   LIVE MONITORING extras
+========================================================= */
+.two-col{ display:grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); margin-bottom: var(--space-6); }
+.three-col{ display:grid; grid-template-columns: 1.3fr 1fr 1fr; gap: var(--space-5); margin-bottom: var(--space-6); }
+
+.donut{
+  width:220px; height:220px; border-radius:50%;
+  margin: 0 auto var(--space-4);
+  display:flex; align-items:center; justify-content:center;
+  position:relative;
+}
+.donut::after{ content:""; position:absolute; width:66%; height:66%; border-radius:50%; background: var(--color-surface); }
+.donut__center{ position:relative; z-index:1; text-align:center; }
+.donut__center b{ display:block; font-size: var(--fs-2xl); }
+.donut__center span{ font-size: var(--fs-sm); color: var(--color-text-dim); }
+
+.legend-list{ display:flex; flex-direction:column; gap: var(--space-3); }
+.legend-list li{ display:flex; align-items:center; justify-content:space-between; font-size: var(--fs-base); }
+.legend-list .swatch{ width:12px; height:12px; border-radius:50%; margin-right: var(--space-2); display:inline-block; }
+
+.weather-card{ text-align:left; }
+.weather-card__main{ display:flex; align-items:center; gap: var(--space-4); margin-bottom: var(--space-4); }
+.weather-card__temp{ font-size: var(--fs-2xl); font-weight:300; }
+.weather-card__desc{ color: var(--color-text-dim); }
+.weather-stats{ display:grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); font-size: var(--fs-sm); color: var(--color-text-dim); margin-bottom:var(--space-4); }
+.weather-stats b{ color:#fff; font-weight:500; }
+.forecast-banner{ background:#99c8ff; color:#0a1522; border-radius: var(--radius-sm); padding: var(--space-3) var(--space-4); font-size: var(--fs-sm); display:flex; align-items:center; gap: var(--space-2); }
+
+/* =========================================================
+   RISK MAP page (toolbar + search input shared component)
+========================================================= */
+.riskmap-toolbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--space-5); flex-wrap:wrap; gap: var(--space-3); }
+.search-input{ background: var(--color-surface-alt); border:2px solid rgba(255,255,255,0.6); border-radius: var(--radius-pill); padding: var(--space-3) var(--space-5); color: var(--color-text-dim); font-size: var(--fs-base); min-width:260px; }
+
+/* =========================================================
+   ALERTS page
+========================================================= */
+.alerts-tabs{ display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--space-6); flex-wrap:wrap; gap: var(--space-4); }
+.alerts-tabs__list{ display:flex; gap: var(--space-7); }
+.alerts-tab{ background:none; border:none; color: var(--color-text-dim); font-weight:600; font-size: var(--fs-md); padding-bottom: var(--space-2); border-bottom:2px solid transparent; }
+.alerts-tab--active{ color:#fff; border-bottom-color: var(--color-accent); }
+.select-pill{ background: var(--color-surface-alt); border:2px solid #fff; border-radius: var(--radius-pill); padding: var(--space-2) var(--space-5); font-size: var(--fs-sm); color: rgba(255,255,255,0.8); }
+
+.alert-list{ display:flex; flex-direction:column; gap: var(--space-4); }
+.alert-item{ border-radius: var(--radius-lg); padding: var(--space-5) var(--space-6); display:flex; justify-content:space-between; gap: var(--space-4); }
+.alert-item--critical{ background: var(--color-critical-dark); }
+.alert-item--high{ background: var(--color-high-dark); }
+.alert-item--moderate{ background: var(--color-moderate-dark); }
+.alert-item__main h3{ font-family: var(--font-display); font-weight:400; font-size: var(--fs-lg); display:flex; align-items:center; gap: var(--space-2); margin-bottom: var(--space-2); }
+.alert-item__row{ display:flex; gap: var(--space-6); font-size: var(--fs-base); margin-bottom: var(--space-2); flex-wrap:wrap; }
+.alert-item__desc{ font-size: var(--fs-sm); font-weight:300; color: rgba(255,255,255,0.9); }
+.alert-item__side{ text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap: var(--space-2); flex-shrink:0; }
+.alert-item__time{ font-size: var(--fs-sm); }
+.alert-item__date{ font-size: var(--fs-xs); color: rgba(255,255,255,0.75); }
+
+/* =========================================================
+   HISTORICAL DATA page
+========================================================= */
+.filters-row{ display:flex; gap: var(--space-4); margin-bottom: var(--space-6); flex-wrap:wrap; align-items:center; }
+.filter-select{ background: var(--color-surface-alt); border:1px solid rgba(255,255,255,0.3); border-radius: var(--radius-sm); padding: var(--space-3) var(--space-5); color:#fff; font-size: var(--fs-sm); min-width:180px; }
+.apply-btn{ background:#0a7a3d; color:#fff; border:none; border-radius: var(--radius-sm); padding: var(--space-3) var(--space-7); font-weight:700; letter-spacing:1px; font-size: var(--fs-sm); }
+
+.hist-grid{ display:grid; grid-template-columns: 2.1fr 1fr; gap: var(--space-5); margin-bottom: var(--space-6); }
+.bar-chart{ display:flex; align-items:flex-end; gap: 8px; height:220px; padding-top: var(--space-4); }
+.bar-chart__bar{ flex:1; background: linear-gradient(180deg, #2f7bd6, #12335c); border-radius: 4px 4px 0 0; }
+
+.summary-list{ display:flex; flex-direction:column; gap: var(--space-5); }
+.summary-row{ display:flex; justify-content:space-between; }
+.summary-item span{ display:block; color: var(--color-text-dim); font-size: var(--fs-sm); margin-bottom:4px; }
+.summary-item b{ font-size: var(--fs-md); font-weight:500; }
+
+.events-table{ width:100%; border-collapse:collapse; font-size: var(--fs-sm); }
+.events-table th{ text-align:left; color:#fff; font-weight:500; padding: var(--space-3) var(--space-3); border-bottom:1px solid rgba(255,255,255,0.15); }
+.events-table td{ padding: var(--space-3) var(--space-3); border-bottom:1px solid rgba(255,255,255,0.08); }
+.events-table__viewall{ display:block; text-align:right; padding: var(--space-3); color: var(--color-info-blue); font-size: var(--fs-sm); }
+
+/* =========================================================
+   PREDICTIONS page
+========================================================= */
+.predictions-toolbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--space-6); flex-wrap:wrap; gap: var(--space-4); }
+.predictions-toolbar__filters{ display:flex; gap: var(--space-4); }
+.refresh-btn{ background: var(--color-accent); color:#fff; border:none; border-radius: var(--radius-sm); padding: var(--space-3) var(--space-6); font-weight:600; font-size: var(--fs-sm); }
+
+.predictions-table{ width:100%; border-collapse:collapse; font-size: var(--fs-sm); margin-bottom: var(--space-6); }
+.predictions-table th{ text-align:left; font-weight:600; padding: var(--space-3); border-bottom:1px solid rgba(255,255,255,0.2); }
+.predictions-table td{ padding: var(--space-4) var(--space-3); border-bottom:1px solid rgba(255,255,255,0.08); vertical-align:middle; }
+.risk-badge{ display:inline-block; padding: 4px 14px; border-radius: var(--radius-pill); font-size: var(--fs-xs); font-weight:700; }
+.risk-badge--critical{ background:#4a1717; color:#ff4a3d; }
+.risk-badge--high{ background:#4a2a0c; color:#ff972a; }
+.risk-badge--moderate{ background:#4a3a0d; color:#f3c62b; }
+.risk-badge--low{ background:#0e4025; color:#44d07b; }
+.prob-bar-bg{ background:#253b48; border-radius: var(--radius-pill); height:10px; width:120px; overflow:hidden; }
+.prob-bar{ height:100%; border-radius: var(--radius-pill); }
+
+.factors-donut-wrap{ display:flex; align-items:center; gap: var(--space-6); flex-wrap:wrap; justify-content:center; }
+.factors-donut{ width:200px; height:200px; border-radius:50%; position:relative; flex-shrink:0; }
+.factors-donut::after{ content:""; position:absolute; inset:22%; border-radius:50%; background: var(--color-surface-raised); }
+
+.model-perf-list{ display:flex; flex-direction:column; gap: var(--space-4); margin-bottom: var(--space-6); }
+.model-perf-row{ display:flex; justify-content:space-between; font-size: var(--fs-md); }
+.model-used{ text-align:center; }
+.model-used__label{ color: var(--color-text-dim); font-size: var(--fs-sm); margin-bottom:4px; }
+.model-used__value{ font-family: var(--font-display); font-weight:600; font-size: var(--fs-lg); }
+.tree-emoji{ font-size:2.4rem; display:block; margin-bottom: var(--space-2); }
+.view-model-link{ display:block; text-align:right; color: var(--color-accent); font-size: var(--fs-sm); font-weight:500; margin-top: var(--space-4); }
+
+/* =========================================================
+   TERRAIN MAP (shared glowing satellite-style map component)
+   used on Dashboard, Live Monitoring and Risk Map pages
+========================================================= */
+.terrain-map{
+  position:relative;
+  border-radius: var(--radius-xl);
+  overflow:hidden;
+  border: 1px solid var(--color-border-soft);
+  isolation:isolate;
+}
+.terrain-map--dash{ min-height:420px; }
+.terrain-map--live{ min-height:460px; margin-bottom: var(--space-6); }
+.terrain-map--full{ min-height:560px; }
+
+.terrain-map__canvas{
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 46% 34% at 27% 30%, rgba(255,140,64,0.16), transparent 62%),
+    radial-gradient(ellipse 30% 24% at 63% 46%, rgba(255,196,90,0.12), transparent 65%),
+    radial-gradient(ellipse 55% 60% at 78% 78%, rgba(70,190,140,0.14), transparent 70%),
+    linear-gradient(155deg, #16302a 0%, #0e2430 32%, #0a1a26 58%, #060f18 82%, #04090f 100%);
+}
+.terrain-map__ridges{
+  position:absolute; inset:-15%;
+  background-image:
+    repeating-linear-gradient(122deg, rgba(255,255,255,0.05) 0 1.5px, transparent 1.5px 16px),
+    repeating-linear-gradient(58deg, rgba(0,0,0,0.28) 0 2px, transparent 2px 22px),
+    repeating-linear-gradient(20deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 30px);
+  mix-blend-mode: overlay;
+  opacity:.7;
+  transform: rotate(-2deg);
+}
+.terrain-map__grid{
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+  background-size: 46px 46px;
+  opacity:.35;
+}
+.terrain-map__vignette{
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse 80% 80% at 50% 45%, transparent 55%, rgba(0,0,0,0.55) 100%);
+}
+.terrain-map__contours{ position:absolute; inset:0; opacity:.5; }
+.terrain-map__contours svg{ width:100%; height:100%; }
+
+.terrain-map__top{
+  position:absolute; top: var(--space-4); left: var(--space-4); right: var(--space-4);
+  display:flex; justify-content:space-between; align-items:flex-start; gap: var(--space-3);
+  z-index:5; flex-wrap:wrap;
+}
+.terrain-map__title-chip{
+  background: rgba(4,10,16,0.72);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-weight:600;
+  font-size: var(--fs-md);
+  display:flex; align-items:center; gap: var(--space-2);
+}
+.terrain-map__title-chip svg{ width:16px; height:16px; opacity:.75; flex-shrink:0; }
+
+.live-badge{
+  background: rgba(4,10,16,0.75);
+  backdrop-filter: blur(6px);
+  border:1px solid rgba(242,54,38,0.6);
+  color:#fff;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  font-weight:700;
+  letter-spacing:1px;
+  display:flex; align-items:center; gap: var(--space-2);
+}
+.live-badge__dot{ width:8px; height:8px; border-radius:50%; background:#f23626; box-shadow:0 0 8px #f23626; animation: pulse 1.6s infinite; }
+@keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
+
+.terrain-map__search{
+  display:flex; align-items:center; gap: var(--space-2);
+  background: rgba(4,10,16,0.72);
+  backdrop-filter: blur(6px);
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-4);
+  min-width:220px;
+}
+.terrain-map__search svg{ width:16px; height:16px; opacity:.55; flex-shrink:0; }
+.terrain-map__search input{
+  background:none; border:none; color:#fff; font-size: var(--fs-sm); width:100%;
+}
+.terrain-map__search input::placeholder{ color: var(--color-text-mute); }
+.terrain-map__search input:focus{ outline:none; }
+
+.terrain-map__controls{
+  position:absolute; top: 76px; right: var(--space-4); z-index:5;
+  display:flex; flex-direction:column; gap: var(--space-2);
+}
+.terrain-map__controls button{
+  width:38px; height:38px; border-radius:10px; border:1px solid rgba(255,255,255,0.14);
+  background: rgba(4,10,16,0.72); backdrop-filter: blur(6px); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:1.05rem; font-weight:600;
+}
+.terrain-map__controls button:hover{ background: rgba(20,87,235,0.35); }
+
+.terrain-map__legend{
+  position:absolute; bottom: var(--space-4); left: var(--space-4); z-index:5;
+  background: rgba(4,10,16,0.78);
+  backdrop-filter: blur(6px);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-5);
+  display:flex; align-items:center; gap: var(--space-5);
+  font-size: var(--fs-xs); font-weight:600; letter-spacing:.5px; color: rgba(255,255,255,0.85);
+  flex-wrap:wrap;
+}
+.terrain-map__legend span{ display:flex; align-items:center; gap:6px; white-space:nowrap; }
+.terrain-map__legend i{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+
+.terrain-map__updated{
+  position:absolute; bottom: var(--space-4); right: var(--space-4); z-index:5;
+  background: rgba(4,10,16,0.78);
+  backdrop-filter: blur(6px);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--fs-sm);
+  display:flex; align-items:center; gap: var(--space-2);
+}
+
+/* map pins */
+.map-pin{
+  position:absolute; transform:translate(-50%,-50%);
+  background:none; border:none; padding:0; z-index:4;
+  display:flex; flex-direction:column; align-items:center;
+}
+.map-pin__halo{
+  width:44px; height:44px; border-radius:50%;
+  background: radial-gradient(circle, var(--pin-color) 0%, transparent 68%);
+  opacity:.6; filter: blur(1px);
+  animation: pin-pulse 2.6s ease-in-out infinite;
+}
+.map-pin__dot{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:13px; height:13px; border-radius:50%;
+  background: var(--pin-color);
+  border:2px solid rgba(255,255,255,0.9);
+  box-shadow: 0 0 12px var(--pin-color);
+}
+.map-pin__label{
+  margin-top:-4px;
+  background: rgba(4,10,16,0.85);
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius:7px;
+  padding:4px 10px;
+  font-size:.72rem;
+  font-weight:600;
+  white-space:nowrap;
+  color:#fff;
+}
+.map-pin__label b{ color: var(--pin-color); margin-left:5px; font-weight:800; }
+@keyframes pin-pulse{ 0%,100%{ transform:scale(1); opacity:.6; } 50%{ transform:scale(1.5); opacity:.12; } }
+
+.riskmap-popup{
+  position:absolute; bottom: var(--space-5); right: var(--space-5); width:280px; z-index:6;
+  background: rgba(5,11,18,0.88);
+  backdrop-filter: blur(8px);
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  font-size: var(--fs-sm);
+  box-shadow: var(--shadow-card);
+}
+.riskmap-popup__head{ display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom: var(--space-2); margin-bottom: var(--space-2); font-weight:600; letter-spacing:.5px; }
+.riskmap-popup__score{ font-size: var(--fs-xl); font-weight:700; margin: var(--space-2) 0; }
+.riskmap-popup dl{ display:grid; grid-template-columns:1fr auto; gap: 5px 8px; margin:0; font-size: var(--fs-xs); color: var(--color-text-dim); }
+.riskmap-popup dd{ margin:0; text-align:right; color:#fff; }
+.riskmap-popup__link{ display:inline-block; margin-top: var(--space-3); color: var(--color-low); font-size: var(--fs-xs); font-weight:600; }
+
+.riskmap-card{ background: var(--color-surface-alt); border:1px solid rgba(255,255,255,0.4); border-radius: var(--radius-xl); padding: var(--space-4); }
+.select-area-bar{ margin-top: var(--space-5); background: var(--color-surface-alt); border-radius: var(--radius-lg); padding: var(--space-4) var(--space-6); display:flex; align-items:center; gap: var(--space-5); flex-wrap:wrap; }
+.select-area-bar__label{ font-size: var(--fs-lg); font-weight:500; }
+.select-area-bar__value{ background: var(--color-bg-alt); border:1px solid rgba(255,255,255,0.4); border-radius: var(--radius-sm); padding: var(--space-3) var(--space-5); display:flex; align-items:center; gap: var(--space-4); }
+
+/* =========================================================
+   SETTINGS page
+========================================================= */
+.settings-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
+.settings-grid .card{ margin-bottom: 0; }
+.settings-section + .settings-section{ margin-top: var(--space-5); }
+.settings-row{ display:flex; align-items:center; justify-content:space-between; gap: var(--space-4); padding: var(--space-4) 0; border-bottom: 1px solid var(--color-border-soft); }
+.settings-row:last-child{ border-bottom:none; padding-bottom:0; }
+.settings-row:first-child{ padding-top:0; }
+.settings-row__label{ font-weight:600; font-size: var(--fs-base); }
+.settings-row__desc{ color: var(--color-text-dim); font-size: var(--fs-sm); margin-top:2px; }
+
+/* toggle switch */
+.switch{ position:relative; display:inline-block; width:46px; height:26px; flex-shrink:0; }
+.switch input{ opacity:0; width:0; height:0; }
+.switch__track{ position:absolute; inset:0; background:#2a333d; border-radius: var(--radius-pill); transition:.2s; }
+.switch__track::before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s; }
+.switch input:checked + .switch__track{ background: var(--color-accent); }
+.switch input:checked + .switch__track::before{ transform: translateX(20px); }
+
+/* slider */
+.field{ display:flex; flex-direction:column; gap: var(--space-2); padding: var(--space-4) 0; border-bottom:1px solid var(--color-border-soft); }
+.field:last-child{ border-bottom:none; padding-bottom:0; }
+.field:first-child{ padding-top:0; }
+.field__head{ display:flex; justify-content:space-between; align-items:center; }
+.field__head span:last-child{ font-weight:700; color:#fff; }
+.range{ -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius: var(--radius-pill); background:#243040; outline:none; }
+.range::-webkit-slider-thumb{ -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background: var(--color-accent); border:3px solid #fff; cursor:pointer; }
+.range::-moz-range-thumb{ width:18px; height:18px; border-radius:50%; background: var(--color-accent); border:3px solid #fff; cursor:pointer; }
+
+.select-field{ background: var(--color-surface-alt); border:1px solid rgba(255,255,255,0.25); border-radius: var(--radius-sm); padding: var(--space-3) var(--space-4); color:#fff; font-size: var(--fs-sm); width:100%; }
+.text-field{ background: var(--color-surface-alt); border:1px solid rgba(255,255,255,0.25); border-radius: var(--radius-sm); padding: var(--space-3) var(--space-4); color:#fff; font-size: var(--fs-sm); width:100%; }
+.form-grid{ display:grid; grid-template-columns:1fr 1fr; gap: var(--space-4); }
+.form-label{ display:block; font-size: var(--fs-sm); color: var(--color-text-dim); margin-bottom: var(--space-2); }
+
+.settings-actions{ display:flex; justify-content:flex-end; gap: var(--space-4); margin-top: var(--space-6); }
+.btn-primary{ background: var(--color-accent); color:#fff; border:none; border-radius: var(--radius-sm); padding: var(--space-3) var(--space-7); font-weight:600; font-size: var(--fs-sm); }
+.btn-ghost{ background:none; border:1px solid rgba(255,255,255,0.3); color:#fff; border-radius: var(--radius-sm); padding: var(--space-3) var(--space-7); font-weight:600; font-size: var(--fs-sm); }
+
+/* =========================================================
+   USER MANAGEMENT page
+========================================================= */
+.usermgmt-toolbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--space-6); flex-wrap:wrap; gap: var(--space-4); }
+.add-user-btn{ background: var(--color-accent); color:#fff; border:none; border-radius: var(--radius-sm); padding: var(--space-3) var(--space-6); font-weight:600; font-size: var(--fs-sm); display:flex; align-items:center; gap: var(--space-2); }
+
+.user-table-wrap{ background: var(--color-surface); border-radius: var(--radius-xl); padding: var(--space-2); overflow-x:auto; }
+.user-table{ width:100%; border-collapse:collapse; font-size: var(--fs-sm); }
+.user-table th{ text-align:left; font-weight:600; color: var(--color-text-dim); padding: var(--space-4); border-bottom:1px solid rgba(255,255,255,0.12); }
+.user-table td{ padding: var(--space-4); border-bottom:1px solid rgba(255,255,255,0.06); vertical-align:middle; }
+.user-cell{ display:flex; align-items:center; gap: var(--space-3); }
+.user-avatar{ width:36px; height:36px; border-radius:50%; background:#3a3f44; display:flex; align-items:center; justify-content:center; font-weight:700; font-size: var(--fs-sm); flex-shrink:0; }
+.user-cell__name{ font-weight:600; }
+.user-cell__email{ color: var(--color-text-dim); font-size: var(--fs-xs); }
+.role-badge{ display:inline-block; padding:4px 14px; border-radius: var(--radius-pill); font-size: var(--fs-xs); font-weight:700; }
+.role-badge--admin{ background:#1c2e5c; color:#7ea6ff; }
+.role-badge--analyst{ background:#0e4025; color:#44d07b; }
+.role-badge--field{ background:#4a3a0d; color:#f3c62b; }
+.role-badge--viewer{ background:#2a2f34; color:#9aa3ab; }
+.status-dot{ display:inline-flex; align-items:center; gap:6px; font-size: var(--fs-xs); font-weight:600; }
+.status-dot::before{ content:""; width:8px; height:8px; border-radius:50%; }
+.status-dot--active::before{ background: var(--color-low); box-shadow:0 0 6px var(--color-low); }
+.status-dot--inactive::before{ background:#5a636c; }
+.row-actions{ display:flex; gap: var(--space-3); }
+.row-actions button{ background:none; border:none; color: var(--color-text-dim); }
+.row-actions button:hover{ color:#fff; }
+.row-actions svg{ width:18px; height:18px; }
+
+/* =========================================================
+   PLACEHOLDER PAGE
+========================================================= */
+.placeholder{ display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:50vh; text-align:center; color: var(--color-text-dim); gap: var(--space-3); }
+.placeholder svg{ width:64px; height:64px; opacity:.5; }
+
+/* =========================================================
+   RESPONSIVE — TABLET (max-width 1024px)
+========================================================= */
+@media (max-width: 1024px){
+  :root{ --sidebar-w: 240px; }
+  .stat-grid{ grid-template-columns: repeat(3,1fr); }
+  .stat-grid--4{ grid-template-columns: repeat(2,1fr); }
+  .dash-row{ grid-template-columns: 1fr; }
+  .sensor-row{ grid-template-columns: repeat(2,1fr); }
+  .bottom-row{ grid-template-columns: 1fr; }
+  .two-col, .three-col{ grid-template-columns: 1fr; }
+  .hist-grid{ grid-template-columns: 1fr; }
+  .settings-grid{ grid-template-columns: 1fr; }
+  .form-grid{ grid-template-columns: 1fr; }
+
+  .app{
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "topbar"
+      "main";
+  }
+  .sidebar{
+    position:fixed;
+    left:0; top:0;
+    transform: translateX(-100%);
+    transition: transform .3s ease;
+    width: var(--sidebar-w);
+    box-shadow: var(--shadow-card);
+  }
+  .sidebar.is-open{ transform: translateX(0); }
+  .topbar__hamburger{ display:inline-flex; }
+  .topbar__title{ font-size: var(--fs-lg); }
+  .sidebar-overlay{
+    display:none;
+    position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:25;
+  }
+  .sidebar-overlay.is-visible{ display:block; }
+}
+
+/* =========================================================
+   RESPONSIVE — MOBILE (max-width 768px)
+========================================================= */
+@media (max-width: 768px){
+  .main{ padding: var(--space-5) var(--space-4); }
+  .stat-grid, .stat-grid--4{ grid-template-columns: 1fr 1fr; }
+  .sensor-row{ grid-template-columns: 1fr; }
+  .topbar{ padding: 0 var(--space-4); }
+  .topbar__admin-name{ display:none; }
+  .topbar__subtitle{ display:none; }
+  .page__heading{ font-size: var(--fs-xl); }
+  .predictions-table, .events-table{ display:block; overflow-x:auto; white-space:nowrap; }
+  .quick-actions{ flex-direction:column; align-items:stretch; }
+  .quick-action-btn{ justify-content:center; }
+  .factors-donut-wrap{ flex-direction:column; }
+  .three-col{ grid-template-columns:1fr; }
+  .alerts-tabs__list{ gap: var(--space-4); }
+  .riskmap-popup{ position:static; width:auto; margin-top: var(--space-4); }
+  .terrain-map__legend{ flex-wrap:wrap; gap: var(--space-3); row-gap:4px; }
+  .terrain-map__search{ min-width:150px; }
+  .user-table-wrap{ border-radius: var(--radius-lg); }
+  .usermgmt-toolbar{ flex-direction:column; align-items:stretch; }
+  .settings-actions{ flex-direction:column-reverse; }
+  .settings-actions .btn-primary, .settings-actions .btn-ghost{ width:100%; text-align:center; }
+}
+</style>
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <header class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <div class="sidebar__brand-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M3 18l5-7 4 5 3-4 6 6H3z" fill="#fff"/></svg>
+      </div>
+      <p class="sidebar__brand-name">SANKET</p>
+    </div>
+
+    <nav class="sidebar__nav" aria-label="Main navigation">
+      <button class="sidebar__item sidebar__item--active" data-page="dashboard" aria-current="page">
+        <svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3z"/></svg>
+        Dashboard
+      </button>
+      <button class="sidebar__item" data-page="live-monitoring">
+        <svg viewBox="0 0 24 24"><path d="M3 12h4l2 7 4-14 2 7h6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        Live Monitoring
+      </button>
+      <button class="sidebar__item" data-page="risk-map">
+        <svg viewBox="0 0 24 24"><path d="M9 3L3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/></svg>
+        Risk Map
+      </button>
+      <button class="sidebar__item" data-page="sensor-data">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="currentColor" stroke-width="2"/></svg>
+        Sensor Data
+      </button>
+      <button class="sidebar__item" data-page="alerts">
+        <svg viewBox="0 0 24 24"><path d="M12 2a6 6 0 0 0-6 6v4l-2 4h16l-2-4V8a6 6 0 0 0-6-6zM10 20a2 2 0 0 0 4 0"/></svg>
+        Alerts
+      </button>
+      <button class="sidebar__item" data-page="predictions">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16v14H4z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 6h12v10H6z"/></svg>
+        Predictions
+      </button>
+      <button class="sidebar__item" data-page="historical-data">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 9h16M9 4v16"/></svg>
+        Historical Data
+      </button>
+      <button class="sidebar__item" data-page="settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1c.6.5 1.3.9 2 1.2L10 21h4l.5-2.6c.7-.3 1.4-.7 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+        Settings
+      </button>
+      <button class="sidebar__item" data-page="user-management">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3.1-6 7-6s7 2.7 7 6M17 8a3 3 0 1 1 0 6M22 20c0-2.6-2-4.8-5-5.6"/></svg>
+        User Management
+      </button>
+    </nav>
+
+    <div class="sidebar__status">
+      <p class="sidebar__status-title"><span class="sidebar__status-dot" aria-hidden="true"></span>System Status</p>
+      <p class="sidebar__status-text">All Systems Operational</p>
+      <p class="sidebar__status-time">Last Updated: 13:11:30</p>
+    </div>
+  </header>
+
+  <!-- ============ TOPBAR ============ -->
+  <div class="topbar">
+    <div class="topbar__left">
+      <button class="topbar__hamburger" id="hamburgerBtn" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <div>
+        <h1 class="topbar__title" id="pageTitle">Landslide Early Warning System</h1>
+        <p class="topbar__subtitle" id="pageSubtitle"></p>
+      </div>
+    </div>
+    <div class="topbar__right">
+      <button class="topbar__bell" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><path d="M6 8a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+      </button>
+      <div class="topbar__admin">
+        <div class="topbar__avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="#cfd4d8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+        </div>
+        <span class="topbar__admin-name">Admin</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+
+    <!-- ================= DASHBOARD ================= -->
+    <section class="page page--active" id="page-dashboard" aria-labelledby="pageTitle">
+
+      <div class="stat-grid" role="list">
+        <div class="stat-card" role="listitem">
+          <div class="stat-card__head">
+            <div class="risk-ring" style="--pct:78" aria-hidden="true"></div>
+            <div>
+              <p class="stat-card__label">Overall Risk Level</p>
+              <p class="stat-card__value--sm text-critical">HIGH RISK</p>
+            </div>
+          </div>
+          <p class="text-critical" style="font-weight:700;">78% <span style="font-weight:400;font-size:var(--fs-sm)">RISK SCORE</span></p>
+          <p class="stat-card__tag text-critical">⚠ STAY ALERT!</p>
+        </div>
+
+        <div class="stat-card" role="listitem">
+          <div class="stat-card__head">
+            <span class="stat-card__icon" aria-hidden="true">🏔️</span>
+            <p class="stat-card__label">Affected Areas</p>
+          </div>
+          <p class="stat-card__value" style="color:var(--color-high)">12</p>
+          <p class="stat-card__sub">High Risk</p>
+        </div>
+
+        <div class="stat-card" role="listitem">
+          <div class="stat-card__head">
+            <span class="stat-card__icon" aria-hidden="true">🔔</span>
+            <p class="stat-card__label">Active Alerts</p>
+          </div>
+          <p class="stat-card__value text-critical">5</p>
+          <p class="stat-card__sub">Critical</p>
+        </div>
+
+        <div class="stat-card" role="listitem">
+          <div class="stat-card__head">
+            <span class="stat-card__icon" aria-hidden="true">🗺️</span>
+            <p class="stat-card__label">Monitored Areas</p>
+          </div>
+          <p class="stat-card__value text-low">48</p>
+          <p class="stat-card__sub">Total</p>
+        </div>
+
+        <div class="stat-card" role="listitem">
+          <div class="stat-card__head">
+            <span class="stat-card__icon" aria-hidden="true">📶</span>
+            <p class="stat-card__label">Sensor&nbsp;Online</p>
+          </div>
+          <p class="stat-card__value text-low">36/40</p>
+        </div>
+      </div>
+
+      <div class="dash-row">
+        <div class="terrain-map terrain-map--dash" role="img" aria-label="Landslide risk map of the Darjeeling–Kalimpong region showing zones from low to critical risk">
+          <div class="terrain-map__canvas"></div>
+          <div class="terrain-map__ridges"></div>
+          <div class="terrain-map__grid"></div>
+          <div class="terrain-map__vignette"></div>
+
+          <div class="terrain-map__top">
+            <span class="terrain-map__title-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3L3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/></svg>
+              Landslide Risk Map
+            </span>
+          </div>
+
+          <div class="terrain-map__controls">
+            <button aria-label="Zoom in">+</button>
+            <button aria-label="Zoom out">–</button>
+          </div>
+
+          <button class="map-pin" style="--pin-color:var(--color-critical); top:30%; left:34%;">
+            <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+            <span class="map-pin__label">Lebong <b>86</b></span>
+          </button>
+          <button class="map-pin" style="--pin-color:var(--color-low); top:45%; left:20%;">
+            <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+            <span class="map-pin__label">Sukhiapokhri <b>45</b></span>
+          </button>
+          <button class="map-pin" style="--pin-color:var(--color-moderate); top:46%; left:44%;">
+            <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+            <span class="map-pin__label">Darjeeling <b>52</b></span>
+          </button>
+          <button class="map-pin" style="--pin-color:var(--color-high); top:40%; left:70%;">
+            <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+            <span class="map-pin__label">Kalimpong <b>64</b></span>
+          </button>
+          <button class="map-pin" style="--pin-color:var(--color-high); top:60%; left:20%;">
+            <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+            <span class="map-pin__label">Mirik <b>73</b></span>
+          </button>
+          <button class="map-pin" style="--pin-color:var(--color-low); top:62%; left:48%;">
+            <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+            <span class="map-pin__label">Kurseong <b>28</b></span>
+          </button>
+          <button class="map-pin" style="--pin-color:var(--color-low); top:82%; left:58%;">
+            <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+            <span class="map-pin__label">Siliguri <b>25</b></span>
+          </button>
+
+          <div class="terrain-map__legend">
+            <span><i style="background:#4caa38"></i>Low</span>
+            <span><i style="background:#f3c600"></i>Moderate</span>
+            <span><i style="background:#ee8409"></i>High</span>
+            <span><i style="background:#f23626"></i>Critical</span>
+          </div>
+        </div>
+
+        <div class="alerts-panel">
+          <div class="alerts-panel__head">
+            <h3>Latest Alerts</h3>
+            <a href="#" class="alerts-panel__viewall">View All</a>
+          </div>
+          <div class="mini-alert mini-alert--critical">
+            <div class="mini-alert__top">
+              <p class="mini-alert__title text-critical">⚠ Critical Risk Detected</p>
+              <span class="mini-alert__badge badge--critical">Critical</span>
+            </div>
+            <p class="mini-alert__meta">Area : Lebong, Darjelling &nbsp;·&nbsp; Time : 10:30 A.M</p>
+          </div>
+          <div class="mini-alert mini-alert--high">
+            <div class="mini-alert__top">
+              <p class="mini-alert__title text-high">⚠ Critical Risk Detected</p>
+              <span class="mini-alert__badge badge--high">High</span>
+            </div>
+            <p class="mini-alert__meta">Area : Mirik &nbsp;·&nbsp; Time : 10:18 A.M</p>
+          </div>
+          <div class="mini-alert mini-alert--high">
+            <div class="mini-alert__top">
+              <p class="mini-alert__title text-high">⚠ Critical Risk Detected</p>
+              <span class="mini-alert__badge badge--high">High</span>
+            </div>
+            <p class="mini-alert__meta">Area : Kalimpong &nbsp;·&nbsp; Time : 10:15 A.M</p>
+          </div>
+          <div class="mini-alert mini-alert--moderate">
+            <div class="mini-alert__top">
+              <p class="mini-alert__title text-moderate">⚠ Critical Risk Detected</p>
+              <span class="mini-alert__badge badge--moderate">Moderate</span>
+            </div>
+            <p class="mini-alert__meta">Area : Kurseong &nbsp;·&nbsp; Time : 10:10 A.M</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="card__title" style="margin-bottom:var(--space-4)">Current Sensor Readings (Live)</p>
+      <div class="sensor-row">
+        <div class="sensor-card">
+          <div class="sensor-card__head"><span class="sensor-card__icon">🌧️</span><span class="sensor-card__label">Rainfall</span></div>
+          <p class="sensor-card__value">42.6 mm</p>
+          <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,30 20,26 40,28 60,20 80,24 100,15 120,22 140,12 160,18 180,10 200,16" fill="none" stroke="#4caa38" stroke-width="3"/></svg>
+        </div>
+        <div class="sensor-card">
+          <div class="sensor-card__head"><span class="sensor-card__icon">💧</span><span class="sensor-card__label">Soil Moisture</span></div>
+          <p class="sensor-card__value">85%</p>
+          <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,20 20,24 40,18 60,26 80,20 100,28 120,18 140,24 160,14 180,20 200,12" fill="none" stroke="#4caa38" stroke-width="3"/></svg>
+        </div>
+        <div class="sensor-card">
+          <div class="sensor-card__head"><span class="sensor-card__icon">📈</span><span class="sensor-card__label">Ground Movement</span></div>
+          <p class="sensor-card__value">2.4 mm/hr</p>
+          <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,32 20,28 40,30 60,22 80,26 100,18 120,24 140,14 160,20 180,10 200,16" fill="none" stroke="#4caa38" stroke-width="3"/></svg>
+        </div>
+        <div class="sensor-card">
+          <div class="sensor-card__head"><span class="sensor-card__icon">🌡️</span><span class="sensor-card__label">Soil Temperature</span></div>
+          <p class="sensor-card__value">23.7 °C</p>
+          <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,24 20,20 40,26 60,18 80,22 100,14 120,20 140,10 160,16 180,8 200,14" fill="none" stroke="#4caa38" stroke-width="3"/></svg>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="alerts-panel" style="grid-column:span 1;">
+          <div class="alerts-panel__head"><h3>Quick Actions</h3></div>
+          <div class="quick-actions" style="background:none;padding:0;">
+            <button class="quick-action-btn">🖥️ Simulate Scenario</button>
+            <button class="quick-action-btn">📄 Generate Report</button>
+            <button class="quick-action-btn">🔔 Add Alert</button>
+            <button class="quick-action-btn">🧭 View Evacuation Routes</button>
+          </div>
+        </div>
+        <div class="emergency-card">
+          <span>Emergency Contact</span>
+          <span>📞 1234</span>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <p class="card__title">Risk Trend (Last 24 hours)</p>
+        <svg viewBox="0 0 600 160" preserveAspectRatio="none">
+          <line x1="0" y1="0" x2="600" y2="0" stroke="#1c2733" stroke-width="1"/>
+          <line x1="0" y1="40" x2="600" y2="40" stroke="#1c2733" stroke-width="1"/>
+          <line x1="0" y1="80" x2="600" y2="80" stroke="#1c2733" stroke-width="1"/>
+          <line x1="0" y1="120" x2="600" y2="120" stroke="#1c2733" stroke-width="1"/>
+          <line x1="0" y1="160" x2="600" y2="160" stroke="#1c2733" stroke-width="1"/>
+          <polyline points="0,110 60,90 120,105 180,95 240,60 300,115 360,95 420,100 480,70 540,50 600,45" fill="none" stroke="#3fa85c" stroke-width="3"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ================= LIVE MONITORING ================= -->
+    <section class="page" id="page-live-monitoring" aria-labelledby="pageTitle">
+      <div class="stat-grid stat-grid--4">
+        <div class="stat-card">
+          <p class="stat-card__label text-critical">Risk Level (Max)</p>
+          <p class="stat-card__value text-critical" style="font-weight:500;">HIGH</p>
+          <p class="stat-card__sub">77/100</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__head"><span class="stat-card__icon">🌧️</span><p class="stat-card__label">Rainfall (24H)</p></div>
+          <p class="stat-card__value--sm">62.4 mm</p>
+          <p class="stat-card__sub">Moderate</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__head"><span class="stat-card__icon">💧</span><p class="stat-card__label">Soil Moisture</p></div>
+          <p class="stat-card__value--sm">38.7 %</p>
+          <p class="stat-card__sub">Normal</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__head"><span class="stat-card__icon">⛰️</span><p class="stat-card__label">Elevation</p></div>
+          <p class="stat-card__value--sm">2,245 m</p>
+          <p class="stat-card__sub">Above Sea Level</p>
+        </div>
+      </div>
+
+      <div class="terrain-map terrain-map--live" role="img" aria-label="Live landslide risk map of the Darjeeling–Kalimpong region, updating in real time">
+        <div class="terrain-map__canvas"></div>
+        <div class="terrain-map__ridges"></div>
+        <div class="terrain-map__grid"></div>
+        <div class="terrain-map__vignette"></div>
+
+        <div class="terrain-map__top">
+          <span class="terrain-map__title-chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3L3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/></svg>
+            Live Risk Map
+          </span>
+          <span class="live-badge"><span class="live-badge__dot"></span>LIVE</span>
+        </div>
+
+        <button class="map-pin" style="--pin-color:var(--color-critical); top:30%; left:34%;">
+          <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+          <span class="map-pin__label">Lebong <b>86</b></span>
+        </button>
+        <button class="map-pin" style="--pin-color:var(--color-low); top:45%; left:20%;">
+          <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+          <span class="map-pin__label">Sukhiapokhri <b>45</b></span>
+        </button>
+        <button class="map-pin" style="--pin-color:var(--color-moderate); top:46%; left:44%;">
+          <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+          <span class="map-pin__label">Darjeeling <b>52</b></span>
+        </button>
+        <button class="map-pin" style="--pin-color:var(--color-high); top:40%; left:70%;">
+          <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+          <span class="map-pin__label">Kalimpong <b>64</b></span>
+        </button>
+        <button class="map-pin" style="--pin-color:var(--color-high); top:60%; left:20%;">
+          <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+          <span class="map-pin__label">Mirik <b>73</b></span>
+        </button>
+        <button class="map-pin" style="--pin-color:var(--color-low); top:62%; left:48%;">
+          <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+          <span class="map-pin__label">Kurseong <b>28</b></span>
+        </button>
+
+        <div class="terrain-map__legend">
+          <span><i style="background:#4caa38"></i>Low</span>
+          <span><i style="background:#f3c600"></i>Moderate</span>
+          <span><i style="background:#ee8409"></i>High</span>
+          <span><i style="background:#f23626"></i>Critical</span>
+        </div>
+        <div class="terrain-map__updated">Last Updated: 10:24:30 AM 🔄</div>
+      </div>
+
+      <div class="two-col">
+        <div class="alerts-panel">
+          <div class="alerts-panel__head"><h3>Recent Alerts</h3><a href="#" class="alerts-panel__viewall">View All</a></div>
+          <div class="mini-alert mini-alert--critical">
+            <div class="mini-alert__top">
+              <p class="mini-alert__title text-critical">⚠ High Risk Detected</p>
+              <span class="mini-alert__badge badge--high">High</span>
+            </div>
+            <p class="mini-alert__meta">Area : Lebong, Darjelling &nbsp;·&nbsp; 10:33 A.M</p>
+          </div>
+          <div class="mini-alert mini-alert--moderate">
+            <div class="mini-alert__top">
+              <p class="mini-alert__title text-moderate">⚠ Rainfall Threshold Exceeded</p>
+              <span class="mini-alert__badge badge--moderate">Medium</span>
+            </div>
+            <p class="mini-alert__meta">Area : Kalimpong &nbsp;·&nbsp; 10:18 A.M</p>
+          </div>
+          <div class="mini-alert mini-alert--moderate">
+            <div class="mini-alert__top">
+              <p class="mini-alert__title text-moderate">⚠ Soil Moisture Increasing</p>
+              <span class="mini-alert__badge badge--moderate">Medium</span>
+            </div>
+            <p class="mini-alert__meta">Area : Kalimpong &nbsp;·&nbsp; 10:15 A.M</p>
+          </div>
+          <div class="mini-alert mini-alert--low">
+            <div class="mini-alert__top">
+              <p class="mini-alert__title text-low">✓ All Systems Normal</p>
+              <span class="mini-alert__badge badge--low">Low</span>
+            </div>
+            <p class="mini-alert__meta">Area : Mirik &nbsp;·&nbsp; 10:15 A.M</p>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <p class="card__title">Risk Trend (7 Days)</p>
+          <svg viewBox="0 0 600 180" preserveAspectRatio="none">
+            <line x1="0" y1="0" x2="600" y2="0" stroke="#1c2733"/>
+            <line x1="0" y1="45" x2="600" y2="45" stroke="#1c2733"/>
+            <line x1="0" y1="90" x2="600" y2="90" stroke="#1c2733"/>
+            <line x1="0" y1="135" x2="600" y2="135" stroke="#1c2733"/>
+            <line x1="0" y1="180" x2="600" y2="180" stroke="#1c2733"/>
+            <polyline points="0,110 85,75 170,95 255,85 340,45 425,105 510,90 595,60" fill="none" stroke="#f23626" stroke-width="3"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="three-col">
+        <div class="card" style="text-align:center;">
+          <p class="card__title">Sensor Data</p>
+          <div class="donut" style="background: conic-gradient(#4caa38 0 78%, #ee8409 78% 90%, #f23626 90% 96%, #7a828a 96% 100%);">
+            <div class="donut__center"><b>32</b><span>Total Sensors</span></div>
+          </div>
+          <ul class="legend-list">
+            <li><span><span class="swatch" style="background:#4caa38"></span>Active</span><span>25</span></li>
+            <li><span><span class="swatch" style="background:#ee8409"></span>Warning</span><span>4</span></li>
+            <li><span><span class="swatch" style="background:#f23626"></span>Offline</span><span>2</span></li>
+            <li><span><span class="swatch" style="background:#7a828a"></span>Maintenance</span><span>1</span></li>
+          </ul>
+          <a href="#" class="alerts-panel__viewall" style="display:block;margin-top:var(--space-4);color:#2f76e8;">View All</a>
+        </div>
+
+        <div class="card weather-card">
+          <p class="card__title">Weather Overview</p>
+          <div class="weather-card__main">
+            <span style="font-size:2.4rem;">🌦️</span>
+            <div>
+              <p class="weather-card__temp">22℃</p>
+              <p class="weather-card__desc">Light Rain</p>
+            </div>
+          </div>
+          <div class="weather-stats">
+            <p>💧 Humidity &nbsp;<b>78%</b></p>
+            <p>🌬️ Wind Speed &nbsp;<b>8 km/hr</b></p>
+            <p>👁️ Visibility &nbsp;<b>12 km</b></p>
+            <p>🧭 Pressure &nbsp;<b>1012 hPa</b></p>
+          </div>
+          <p class="forecast-banner">ℹ️ Forecast: Moderate rainfall expected in next 24 hrs</p>
+        </div>
+
+        <div class="card" style="grid-column: span 1;">
+          <p class="card__title">System Status</p>
+          <p class="text-low" style="font-weight:700;">🟢 All Systems Operational</p>
+          <p class="text-dim" style="margin-top:var(--space-3);font-size:var(--fs-sm);">Last Updated: 13:11:30</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= RISK MAP ================= -->
+    <section class="page" id="page-risk-map" aria-labelledby="pageTitle">
+      <div class="riskmap-toolbar">
+        <h2 class="page__heading" style="margin-bottom:0;">Landslide Risk Map</h2>
+      </div>
+
+      <div class="riskmap-card">
+        <div class="terrain-map terrain-map--full" role="img" aria-label="Interactive landslide risk heat map of the Darjeeling district">
+          <div class="terrain-map__canvas"></div>
+          <div class="terrain-map__ridges"></div>
+          <div class="terrain-map__grid"></div>
+          <div class="terrain-map__vignette"></div>
+
+          <div class="terrain-map__top">
+            <span class="terrain-map__title-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3L3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/></svg>
+              Live Landslide Risk Map
+            </span>
+            <div class="terrain-map__search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+              <input type="text" placeholder="Search Area..." aria-label="Search area">
+            </div>
+          </div>
+
+          <div class="terrain-map__controls">
+            <button aria-label="Locate me">◎</button>
+            <button aria-label="Toggle layers">▤</button>
+            <button aria-label="Zoom in">+</button>
+            <button aria-label="Zoom out">–</button>
+          </div>
+
+          <button class="map-pin" style="--pin-color:var(--color-critical); top:30%; left:34%;">
+            <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+            <span class="map-pin__label">Lebong <b>86</b></span>
+          </button>
+          <button class="map-pin" style="--pin-color:var(--color-low); top:45%; left:20%;">
+            <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+            <span class="map-pin__label">Sukhiapokhri <b>45</b></span>
+          </button>
+          <button class="map-pin" style="--pin-color:var(--color-moderate); top:46%; left:44%;">
+            <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+            <span class="map-pin__label">Darjeeling <b>52</b></span>
+          </button>
+          <button class="map-pin" style="--pin-color:var(--color-high); top:40%; left:70%;">
+            <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+            <span class="map-pin__label">Kalimpong <b>64</b></span>
+          </button>
+          <button class="map-pin" style="--pin-color:var(--color-high); top:60%; left:20%;">
+            <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+            <span class="map-pin__label">Mirik <b>73</b></span>
+          </button>
+          <button class="map-pin" style="--pin-color:var(--color-low); top:62%; left:48%;">
+            <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+            <span class="map-pin__label">Kurseong <b>28</b></span>
+          </button>
+          <button class="map-pin" style="--pin-color:var(--color-low); top:82%; left:58%;">
+            <span class="map-pin__halo"></span><span class="map-pin__dot"></span>
+            <span class="map-pin__label">Siliguri <b>25</b></span>
+          </button>
+
+          <div class="terrain-map__legend">
+            <span><i style="background:#4caa38"></i>Low</span>
+            <span><i style="background:#f3c600"></i>Moderate</span>
+            <span><i style="background:#ee8409"></i>High</span>
+            <span><i style="background:#f23626"></i>Critical</span>
+          </div>
+
+          <div class="riskmap-popup">
+            <div class="riskmap-popup__head">
+              <span>LEBONG, DARJEELING</span>
+              <span class="risk-badge risk-badge--critical">CRITICAL</span>
+            </div>
+            <p class="text-dim" style="font-size:var(--fs-xs);margin-bottom:2px;">RISK SCORE</p>
+            <p class="riskmap-popup__score">86%</p>
+            <dl>
+              <dt>Rainfall</dt><dd>112 mm</dd>
+              <dt>Soil Moisture</dt><dd>88 %</dd>
+              <dt>Slope</dt><dd>34°</dd>
+              <dt>Last Updated</dt><dd>10:23 AM, 24 May 2026</dd>
+            </dl>
+            <a href="#" class="riskmap-popup__link">View Details →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="select-area-bar">
+        <span class="select-area-bar__label">Select Area:</span>
+        <span class="select-area-bar__value">Lebong, Darjeeling ▾</span>
+      </div>
+    </section>
+
+    <!-- ================= SENSOR DATA ================= -->
+    <section class="page" id="page-sensor-data" aria-labelledby="pageTitle">
+
+      <div class="stat-grid stat-grid--4">
+        <div class="stat-card">
+          <div class="stat-card__head"><span class="stat-card__icon">📡</span><p class="stat-card__label">Total Sensors</p></div>
+          <p class="stat-card__value">32</p>
+          <p class="stat-card__sub">Across 8 stations</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__head"><span class="stat-card__icon">🟢</span><p class="stat-card__label">Active</p></div>
+          <p class="stat-card__value text-low">25</p>
+          <p class="stat-card__sub">Reporting normally</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__head"><span class="stat-card__icon">🟠</span><p class="stat-card__label">Warning</p></div>
+          <p class="stat-card__value text-high">4</p>
+          <p class="stat-card__sub">Needs attention</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__head"><span class="stat-card__icon">🔴</span><p class="stat-card__label">Offline</p></div>
+          <p class="stat-card__value text-critical">2</p>
+          <p class="stat-card__sub">1 in maintenance</p>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <p class="card__title">Current Sensor Readings (Live)</p>
+          <div class="sensor-row" style="grid-template-columns:repeat(2,1fr); margin-bottom:0;">
+            <div class="sensor-card">
+              <div class="sensor-card__head"><span class="sensor-card__icon">🌧️</span><span class="sensor-card__label">Rainfall</span></div>
+              <p class="sensor-card__value">42.6 mm</p>
+              <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,30 20,26 40,28 60,20 80,24 100,15 120,22 140,12 160,18 180,10 200,16" fill="none" stroke="#4caa38" stroke-width="3"/></svg>
+            </div>
+            <div class="sensor-card">
+              <div class="sensor-card__head"><span class="sensor-card__icon">💧</span><span class="sensor-card__label">Soil Moisture</span></div>
+              <p class="sensor-card__value">85%</p>
+              <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,20 20,24 40,18 60,26 80,20 100,28 120,18 140,24 160,14 180,20 200,12" fill="none" stroke="#4caa38" stroke-width="3"/></svg>
+            </div>
+            <div class="sensor-card">
+              <div class="sensor-card__head"><span class="sensor-card__icon">📈</span><span class="sensor-card__label">Ground Movement</span></div>
+              <p class="sensor-card__value">2.4 mm/hr</p>
+              <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,32 20,28 40,30 60,22 80,26 100,18 120,24 140,14 160,20 180,10 200,16" fill="none" stroke="#4caa38" stroke-width="3"/></svg>
+            </div>
+            <div class="sensor-card">
+              <div class="sensor-card__head"><span class="sensor-card__icon">🌡️</span><span class="sensor-card__label">Soil Temperature</span></div>
+              <p class="sensor-card__value">23.7 °C</p>
+              <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,24 20,20 40,26 60,18 80,22 100,14 120,20 140,10 160,16 180,8 200,14" fill="none" stroke="#4caa38" stroke-width="3"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="text-align:center;">
+          <p class="card__title">Sensor Status Breakdown</p>
+          <div class="donut" style="background: conic-gradient(#4caa38 0 78%, #ee8409 78% 90%, #f23626 90% 96%, #7a828a 96% 100%);">
+            <div class="donut__center"><b>32</b><span>Total Sensors</span></div>
+          </div>
+          <ul class="legend-list">
+            <li><span><span class="swatch" style="background:#4caa38"></span>Active</span><span>25</span></li>
+            <li><span><span class="swatch" style="background:#ee8409"></span>Warning</span><span>4</span></li>
+            <li><span><span class="swatch" style="background:#f23626"></span>Offline</span><span>2</span></li>
+            <li><span><span class="swatch" style="background:#7a828a"></span>Maintenance</span><span>1</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="filters-row">
+        <select class="filter-select" aria-label="Filter by station"><option>All Stations</option></select>
+        <select class="filter-select" aria-label="Filter by sensor type"><option>All Sensor Types</option></select>
+        <select class="filter-select" aria-label="Filter by status"><option>All Statuses</option></select>
+      </div>
+
+      <div class="card" style="padding:0; overflow-x:auto;">
+        <table class="predictions-table">
+          <thead>
+            <tr><th>Sensor ID</th><th>Type</th><th>Location</th><th>Reading</th><th>Status</th><th>Last Sync</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>RG-01</td><td>Rain Gauge</td><td>Lebong, Darjeeling</td><td>42.6 mm</td>
+              <td><span class="risk-badge risk-badge--low">Active</span></td><td>10:24 AM</td>
+            </tr>
+            <tr>
+              <td>SM-02</td><td>Soil Moisture</td><td>Lebong, Darjeeling</td><td>85 %</td>
+              <td><span class="risk-badge risk-badge--low">Active</span></td><td>10:24 AM</td>
+            </tr>
+            <tr>
+              <td>GM-03</td><td>Ground Movement</td><td>Kalimpong Town</td><td>2.4 mm/hr</td>
+              <td><span class="risk-badge risk-badge--moderate">Warning</span></td><td>10:22 AM</td>
+            </tr>
+            <tr>
+              <td>ST-04</td><td>Soil Temperature</td><td>Mirik</td><td>23.7 °C</td>
+              <td><span class="risk-badge risk-badge--low">Active</span></td><td>10:23 AM</td>
+            </tr>
+            <tr>
+              <td>RG-05</td><td>Rain Gauge</td><td>Kurseong</td><td>18.2 mm</td>
+              <td><span class="risk-badge risk-badge--low">Active</span></td><td>10:21 AM</td>
+            </tr>
+            <tr>
+              <td>SM-06</td><td>Soil Moisture</td><td>Sukhiapokhri</td><td>—</td>
+              <td><span class="risk-badge risk-badge--critical">Offline</span></td><td>08:47 AM</td>
+            </tr>
+            <tr>
+              <td>GM-07</td><td>Ground Movement</td><td>Lebong, Darjeeling</td><td>1.1 mm/hr</td>
+              <td><span class="risk-badge risk-badge--moderate">Warning</span></td><td>10:20 AM</td>
+            </tr>
+            <tr>
+              <td>RG-08</td><td>Rain Gauge</td><td>Kalimpong Town</td><td>—</td>
+              <td><span class="risk-badge" style="background:#2a2f34;color:#9aa3ab;">Maintenance</span></td><td>Yesterday</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-dim" style="font-size:var(--fs-xs); margin-top:var(--space-3);">
+        Note: this per-sensor table was reconstructed from the sensor totals and live readings that appear elsewhere in the design file — the source Figma project did not include a dedicated Sensor Data screen mockup, and Figma's API rate limit was reached before it could be double-checked against the underlying "Sensor Monitoring" component.
+      </p>
+    </section>
+
+    <!-- ================= ALERTS ================= -->
+    <section class="page" id="page-alerts" aria-labelledby="pageTitle">
+      <div class="alerts-tabs">
+        <div class="alerts-tabs__list" role="tablist" aria-label="Alert filters">
+          <button class="alerts-tab alerts-tab--active" role="tab" aria-selected="true">Active Alerts (5)</button>
+          <button class="alerts-tab" role="tab" aria-selected="false">Resolved Alerts</button>
+          <button class="alerts-tab" role="tab" aria-selected="false">All Alerts</button>
+        </div>
+        <select class="select-pill" aria-label="Filter by risk level">
+          <option>All Risk Levels</option>
+          <option>Critical</option>
+          <option>High</option>
+          <option>Moderate</option>
+        </select>
+      </div>
+
+      <div class="alert-list">
+        <article class="alert-item alert-item--critical">
+          <div class="alert-item__main">
+            <h3 class="text-critical">⚠ Critical Risk Detected</h3>
+            <div class="alert-item__row"><span>Area : Lebong, Darjelling</span><span>Risk Score : 80%</span></div>
+            <p class="alert-item__desc">High probability of landslide due to intense rainfall and soil moisture</p>
+          </div>
+          <div class="alert-item__side">
+            <span class="risk-badge risk-badge--critical">Critical</span>
+            <span class="alert-item__time">10:33 A.M</span>
+            <span class="alert-item__date">24 MAY 2026</span>
+          </div>
+        </article>
+
+        <article class="alert-item alert-item--high">
+          <div class="alert-item__main">
+            <h3 class="text-high">⚠ High Risk Detected</h3>
+            <div class="alert-item__row"><span>Area : Kalimpong Town</span><span>Risk Score : 64%</span></div>
+            <p class="alert-item__desc">Increased risk due to heavy rainfall</p>
+          </div>
+          <div class="alert-item__side">
+            <span class="risk-badge risk-badge--high">High</span>
+            <span class="alert-item__time">10:18 A.M</span>
+            <span class="alert-item__date">24 MAY 2026</span>
+          </div>
+        </article>
+
+        <article class="alert-item alert-item--high">
+          <div class="alert-item__main">
+            <h3 class="text-high">⚠ High Risk Detected</h3>
+            <div class="alert-item__row"><span>Area : Mirik</span><span>Risk Score : 71%</span></div>
+            <p class="alert-item__desc">High probability of landslide due to intense rainfall and soil moisture</p>
+          </div>
+          <div class="alert-item__side">
+            <span class="risk-badge risk-badge--high">High</span>
+            <span class="alert-item__time">10:15 A.M</span>
+            <span class="alert-item__date">24 MAY 2026</span>
+          </div>
+        </article>
+
+        <article class="alert-item alert-item--moderate">
+          <div class="alert-item__main">
+            <h3 class="text-moderate">⚠ Moderate Risk Detected</h3>
+            <div class="alert-item__row"><span>Area : Kurseong</span><span>Risk Score : 45%</span></div>
+            <p class="alert-item__desc">Moderate rainfall expected</p>
+          </div>
+          <div class="alert-item__side">
+            <span class="risk-badge risk-badge--moderate">Moderate</span>
+            <span class="alert-item__time">10:10 A.M</span>
+            <span class="alert-item__date">24 MAY 2026</span>
+          </div>
+        </article>
+      </div>
+      <a href="#" class="events-table__viewall">View All →</a>
+    </section>
+
+    <!-- ================= PREDICTIONS ================= -->
+    <section class="page" id="page-predictions" aria-labelledby="pageTitle">
+      <div class="predictions-toolbar">
+        <h2 class="page__heading" style="margin-bottom:0;">Risk Predictions</h2>
+        <div class="predictions-toolbar__filters">
+          <select class="filter-select"><option>All Areas</option></select>
+          <select class="filter-select"><option>Last 24 Hours</option></select>
+          <button class="refresh-btn">Refresh</button>
+        </div>
+      </div>
+
+      <div class="card" style="padding:0; overflow-x:auto;">
+        <table class="predictions-table">
+          <thead>
+            <tr>
+              <th>Area</th><th>Risk Score</th><th>Risk Level</th><th>Probability (%)</th><th>Factors Contribution</th><th>Last Updated</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Labong, Darjeeling</td><td>86%</td>
+              <td><span class="risk-badge risk-badge--critical">Critical</span></td>
+              <td><div class="prob-bar-bg"><div class="prob-bar" style="width:89%;background:#ff4a3d;"></div></div> 89</td>
+              <td>Heavy Rainfall, High Soil Moisture, Steep Slope</td><td>10:23 AM</td>
+            </tr>
+            <tr>
+              <td>Mirik</td><td>73%</td>
+              <td><span class="risk-badge risk-badge--high">High</span></td>
+              <td><div class="prob-bar-bg"><div class="prob-bar" style="width:73%;background:#ff972a;"></div></div> 73</td>
+              <td>High Rainfall, Soil Moisture</td><td>10:18 AM</td>
+            </tr>
+            <tr>
+              <td>Kalimpong Town</td><td>64%</td>
+              <td><span class="risk-badge risk-badge--high">High</span></td>
+              <td><div class="prob-bar-bg"><div class="prob-bar" style="width:64%;background:#f3c62b;"></div></div> 64</td>
+              <td>Moderate Rainfall, Slope</td><td>10:15 AM</td>
+            </tr>
+            <tr>
+              <td>Sukhiapokhri</td><td>45%</td>
+              <td><span class="risk-badge risk-badge--moderate">Moderate</span></td>
+              <td><div class="prob-bar-bg"><div class="prob-bar" style="width:45%;background:#4ccb79;"></div></div> 45</td>
+              <td>Low Rainfall, Stable Ground</td><td>10:12 AM</td>
+            </tr>
+            <tr>
+              <td>Kurseong</td><td>28%</td>
+              <td><span class="risk-badge risk-badge--low">Low</span></td>
+              <td><div class="prob-bar-bg"><div class="prob-bar" style="width:28%;background:#44d07b;"></div></div> 28</td>
+              <td>Low Rainfall, Vegetation Cover</td><td>10:10 AM</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <br>
+
+      <div class="two-col">
+        <div class="card">
+          <p class="card__title">Factors Importance</p>
+          <div class="factors-donut-wrap">
+            <div class="factors-donut" style="background: conic-gradient(#f23626 0 35%, #4caa38 35% 61%, #f3c600 61% 79%, #1457eb 79% 91%, #ee8409 91% 100%);"></div>
+            <ul class="legend-list">
+              <li><span><span class="swatch" style="background:#f23626"></span>Rainfall</span><span>35%</span></li>
+              <li><span><span class="swatch" style="background:#4caa38"></span>Soil Moisture</span><span>26%</span></li>
+              <li><span><span class="swatch" style="background:#f3c600"></span>Slope</span><span>18%</span></li>
+              <li><span><span class="swatch" style="background:#1457eb"></span>Land Cover</span><span>12%</span></li>
+              <li><span><span class="swatch" style="background:#ee8409"></span>Ground Movement</span><span>9%</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <p class="card__title">Model Performance</p>
+          <div class="model-perf-list">
+            <div class="model-perf-row"><span>Accuracy</span><b>92.4%</b></div>
+            <div class="model-perf-row"><span>Precision</span><b>90.1%</b></div>
+            <div class="model-perf-row"><span>Recall</span><b>83.2%</b></div>
+            <div class="model-perf-row"><span>F1 Score</span><b>91.6%</b></div>
+          </div>
+          <div class="model-used">
+            <span class="tree-emoji" aria-hidden="true">🌲🌲🌲</span>
+            <p class="model-used__label">Model Used</p>
+            <p class="model-used__value">Random Forest</p>
+          </div>
+          <a href="#" class="view-model-link">View Model Details →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= HISTORICAL DATA ================= -->
+    <section class="page" id="page-historical-data" aria-labelledby="pageTitle">
+      <div class="filters-row">
+        <select class="filter-select"><option>Darjeeling District</option></select>
+        <select class="filter-select"><option>Rainfall</option></select>
+        <select class="filter-select"><option>16/05/2026 - 24/05/2026</option></select>
+        <button class="apply-btn">APPLY</button>
+      </div>
+
+      <div class="hist-grid">
+        <div class="card">
+          <p class="card__title">Rainfall (mm)</p>
+          <div class="bar-chart" aria-hidden="true">
+            <div class="bar-chart__bar" style="height:40%"></div>
+            <div class="bar-chart__bar" style="height:65%"></div>
+            <div class="bar-chart__bar" style="height:30%"></div>
+            <div class="bar-chart__bar" style="height:80%"></div>
+            <div class="bar-chart__bar" style="height:55%"></div>
+            <div class="bar-chart__bar" style="height:100%"></div>
+            <div class="bar-chart__bar" style="height:70%"></div>
+            <div class="bar-chart__bar" style="height:45%"></div>
+            <div class="bar-chart__bar" style="height:60%"></div>
+          </div>
+
+          <br>
+
+          <p class="card__title">Historical Landslide Events</p>
+          <table class="events-table">
+            <thead><tr><th>Date</th><th>Area</th><th>Magnitude</th><th>Impact</th></tr></thead>
+            <tbody>
+              <tr><td>12 May 2026</td><td>Lebong, Darjeeling</td><td class="text-critical">High</td><td>Road Blocked</td></tr>
+              <tr><td>28 Apr 2025</td><td>Kurseong</td><td class="text-moderate">Medium</td><td>Minor Damage</td></tr>
+              <tr><td>15 Apr 2025</td><td>Mirik</td><td class="text-low">Low</td><td>No Damage</td></tr>
+            </tbody>
+          </table>
+          <a href="#" class="events-table__viewall">View All Events →</a>
+        </div>
+
+        <div class="card">
+          <p class="card__title">Summary</p>
+          <div class="summary-list">
+            <div class="summary-row">
+              <div class="summary-item"><span>Total Rain</span><b class="text-blue">642 mm</b></div>
+              <div class="summary-item"><span>Peak Hour</span><b>10:15 A.M</b></div>
+            </div>
+            <div class="summary-item"><span>Average Rainfall</span><b>91.7 mm</b></div>
+            <div class="summary-item"><span>Peak Rainfall</span><b>103 mm/h</b></div>
+            <div class="summary-item"><span>Threshold Exceeded</span><b class="text-moderate">32 mm (19 MAY)</b></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <p class="card__title">Risk Trend (Last 7 Days)</p>
+        <svg viewBox="0 0 600 150" preserveAspectRatio="none">
+          <line x1="0" y1="0" x2="600" y2="0" stroke="#1c2733"/>
+          <line x1="0" y1="37" x2="600" y2="37" stroke="#1c2733"/>
+          <line x1="0" y1="74" x2="600" y2="74" stroke="#1c2733"/>
+          <line x1="0" y1="111" x2="600" y2="111" stroke="#1c2733"/>
+          <line x1="0" y1="150" x2="600" y2="150" stroke="#1c2733"/>
+          <polyline points="0,100 85,80 170,90 255,60 340,95 425,70 510,55 595,40" fill="none" stroke="#3fa85c" stroke-width="3"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ================= SETTINGS ================= -->
+    <section class="page" id="page-settings" aria-labelledby="pageTitle">
+      <h2 class="page__heading">Settings</h2>
+      <p class="page__intro">Configure alerts, thresholds and system preferences for the early warning platform.</p>
+
+      <div class="settings-grid">
+        <div>
+          <div class="card settings-section">
+            <p class="card__title">Notification Preferences</p>
+            <div class="settings-row">
+              <div>
+                <p class="settings-row__label">Email Alerts</p>
+                <p class="settings-row__desc">Receive risk alerts and daily summaries by email</p>
+              </div>
+              <label class="switch"><input type="checkbox" checked><span class="switch__track"></span></label>
+            </div>
+            <div class="settings-row">
+              <div>
+                <p class="settings-row__label">SMS Alerts</p>
+                <p class="settings-row__desc">Get a text message when a critical alert is raised</p>
+              </div>
+              <label class="switch"><input type="checkbox" checked><span class="switch__track"></span></label>
+            </div>
+            <div class="settings-row">
+              <div>
+                <p class="settings-row__label">Push Notifications</p>
+                <p class="settings-row__desc">In-app and browser push notifications</p>
+              </div>
+              <label class="switch"><input type="checkbox" checked><span class="switch__track"></span></label>
+            </div>
+            <div class="settings-row">
+              <div>
+                <p class="settings-row__label">Critical Alerts Only</p>
+                <p class="settings-row__desc">Mute moderate and low risk notifications</p>
+              </div>
+              <label class="switch"><input type="checkbox"><span class="switch__track"></span></label>
+            </div>
+          </div>
+
+          <div class="card settings-section">
+            <p class="card__title">Alert Thresholds</p>
+            <div class="field">
+              <div class="field__head"><span>Rainfall Threshold</span><span>90 mm</span></div>
+              <input type="range" class="range" min="0" max="200" value="90" aria-label="Rainfall threshold in millimeters">
+            </div>
+            <div class="field">
+              <div class="field__head"><span>Soil Moisture Threshold</span><span>75 %</span></div>
+              <input type="range" class="range" min="0" max="100" value="75" aria-label="Soil moisture threshold percentage">
+            </div>
+            <div class="field">
+              <div class="field__head"><span>Ground Movement Threshold</span><span>3.0 mm/hr</span></div>
+              <input type="range" class="range" min="0" max="10" value="3" aria-label="Ground movement threshold in millimeters per hour">
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card settings-section">
+            <p class="card__title">System Preferences</p>
+            <div class="field">
+              <label class="form-label" for="unitsSelect">Units</label>
+              <select class="select-field" id="unitsSelect">
+                <option>Metric (mm, °C, km/hr)</option>
+                <option>Imperial (in, °F, mph)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="form-label" for="refreshSelect">Data Refresh Interval</label>
+              <select class="select-field" id="refreshSelect">
+                <option>Every 5 minutes</option>
+                <option>Every 15 minutes</option>
+                <option>Every 30 minutes</option>
+                <option>Every hour</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="form-label" for="mapStyleSelect">Map Style</label>
+              <select class="select-field" id="mapStyleSelect">
+                <option>Satellite Terrain</option>
+                <option>Topographic</option>
+                <option>Street</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="form-label" for="languageSelect">Language</label>
+              <select class="select-field" id="languageSelect">
+                <option>English</option>
+                <option>Nepali</option>
+                <option>Bengali</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="card settings-section">
+            <p class="card__title">Account</p>
+            <div class="field">
+              <div class="form-grid">
+                <div>
+                  <label class="form-label" for="adminName">Full Name</label>
+                  <input class="text-field" id="adminName" type="text" value="Admin">
+                </div>
+                <div>
+                  <label class="form-label" for="adminEmail">Email</label>
+                  <input class="text-field" id="adminEmail" type="email" value="admin@sanket.org">
+                </div>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div>
+                <p class="settings-row__label">Two-Factor Authentication</p>
+                <p class="settings-row__desc">Add an extra layer of security to your account</p>
+              </div>
+              <label class="switch"><input type="checkbox" checked><span class="switch__track"></span></label>
+            </div>
+            <div class="settings-row">
+              <div>
+                <p class="settings-row__label">Password</p>
+                <p class="settings-row__desc">Last changed 42 days ago</p>
+              </div>
+              <button class="btn-ghost">Change Password</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-actions">
+        <button class="btn-ghost">Cancel</button>
+        <button class="btn-primary">Save Changes</button>
+      </div>
+    </section>
+
+    <!-- ================= USER MANAGEMENT ================= -->
+    <section class="page" id="page-user-management" aria-labelledby="pageTitle">
+      <div class="usermgmt-toolbar">
+        <div>
+          <h2 class="page__heading" style="margin-bottom:0;">User Management</h2>
+        </div>
+        <div style="display:flex; gap:var(--space-4); flex-wrap:wrap;">
+          <input class="search-input" type="text" placeholder="Search users..." aria-label="Search users" style="min-width:220px;">
+          <button class="add-user-btn">+ Add User</button>
+        </div>
+      </div>
+
+      <div class="stat-grid stat-grid--4">
+        <div class="stat-card">
+          <div class="stat-card__head"><span class="stat-card__icon">👥</span><p class="stat-card__label">Total Users</p></div>
+          <p class="stat-card__value">18</p>
+          <p class="stat-card__sub">Across all roles</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__head"><span class="stat-card__icon">🛡️</span><p class="stat-card__label">Admins</p></div>
+          <p class="stat-card__value text-blue">3</p>
+          <p class="stat-card__sub">Full system access</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__head"><span class="stat-card__icon">🧭</span><p class="stat-card__label">Field Officers</p></div>
+          <p class="stat-card__value" style="color:var(--color-moderate)">7</p>
+          <p class="stat-card__sub">On-ground monitoring</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__head"><span class="stat-card__icon">🟢</span><p class="stat-card__label">Active Now</p></div>
+          <p class="stat-card__value text-low">14</p>
+          <p class="stat-card__sub">Logged in this week</p>
+        </div>
+      </div>
+
+      <div class="user-table-wrap">
+        <table class="user-table">
+          <thead>
+            <tr><th>User</th><th>Role</th><th>Status</th><th>Last Login</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <span class="user-avatar">PS</span>
+                  <div><p class="user-cell__name">Priya Sharma</p><p class="user-cell__email">priya.sharma@sanket.org</p></div>
+                </div>
+              </td>
+              <td><span class="role-badge role-badge--admin">Admin</span></td>
+              <td><span class="status-dot status-dot--active">Active</span></td>
+              <td>Today, 09:12 AM</td>
+              <td>
+                <div class="row-actions">
+                  <button aria-label="Edit user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+                  <button aria-label="Remove user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <span class="user-avatar">RG</span>
+                  <div><p class="user-cell__name">Rohan Gurung</p><p class="user-cell__email">rohan.gurung@sanket.org</p></div>
+                </div>
+              </td>
+              <td><span class="role-badge role-badge--analyst">Analyst</span></td>
+              <td><span class="status-dot status-dot--active">Active</span></td>
+              <td>Today, 08:47 AM</td>
+              <td>
+                <div class="row-actions">
+                  <button aria-label="Edit user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+                  <button aria-label="Remove user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <span class="user-avatar">TL</span>
+                  <div><p class="user-cell__name">Tenzin Lepcha</p><p class="user-cell__email">tenzin.lepcha@sanket.org</p></div>
+                </div>
+              </td>
+              <td><span class="role-badge role-badge--field">Field Officer</span></td>
+              <td><span class="status-dot status-dot--active">Active</span></td>
+              <td>Yesterday, 06:30 PM</td>
+              <td>
+                <div class="row-actions">
+                  <button aria-label="Edit user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+                  <button aria-label="Remove user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <span class="user-avatar">AR</span>
+                  <div><p class="user-cell__name">Anjali Rai</p><p class="user-cell__email">anjali.rai@sanket.org</p></div>
+                </div>
+              </td>
+              <td><span class="role-badge role-badge--viewer">Viewer</span></td>
+              <td><span class="status-dot status-dot--inactive">Inactive</span></td>
+              <td>3 days ago</td>
+              <td>
+                <div class="row-actions">
+                  <button aria-label="Edit user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+                  <button aria-label="Remove user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <span class="user-avatar">KB</span>
+                  <div><p class="user-cell__name">Karma Bhutia</p><p class="user-cell__email">karma.bhutia@sanket.org</p></div>
+                </div>
+              </td>
+              <td><span class="role-badge role-badge--field">Field Officer</span></td>
+              <td><span class="status-dot status-dot--active">Active</span></td>
+              <td>Today, 07:15 AM</td>
+              <td>
+                <div class="row-actions">
+                  <button aria-label="Edit user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+                  <button aria-label="Remove user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var PAGE_META = {
+    "dashboard":        { title: "Landslide Early Warning System", subtitle: "" },
+    "live-monitoring":  { title: "Landslide Early Warning System", subtitle: "Real-time monitoring of landslide vulnerable areas" },
+    "risk-map":         { title: "Landslide Early Warning System", subtitle: "" },
+    "sensor-data":      { title: "Sensor Data", subtitle: "" },
+    "alerts":           { title: "Landslide Early Warning System", subtitle: "" },
+    "predictions":      { title: "Landslide Early Warning System", subtitle: "" },
+    "historical-data":  { title: "Historical Data", subtitle: "" },
+    "settings":         { title: "Settings", subtitle: "Alerts, thresholds and system preferences" },
+    "user-management":  { title: "User Management", subtitle: "Manage admin, analyst and field officer accounts" }
+  };
+
+  var navItems   = document.querySelectorAll(".sidebar__item");
+  var pages      = document.querySelectorAll(".page");
+  var pageTitle  = document.getElementById("pageTitle");
+  var pageSub    = document.getElementById("pageSubtitle");
+  var sidebar    = document.getElementById("sidebar");
+  var overlay    = document.getElementById("sidebarOverlay");
+  var hamburger  = document.getElementById("hamburgerBtn");
+
+  function activatePage(pageKey){
+    pages.forEach(function(p){ p.classList.remove("page--active"); });
+    var target = document.getElementById("page-" + pageKey);
+    if(target){ target.classList.add("page--active"); }
+
+    navItems.forEach(function(btn){
+      var isActive = btn.getAttribute("data-page") === pageKey;
+      btn.classList.toggle("sidebar__item--active", isActive);
+      if(isActive){ btn.setAttribute("aria-current","page"); }
+      else{ btn.removeAttribute("aria-current"); }
+    });
+
+    var meta = PAGE_META[pageKey];
+    if(meta){
+      pageTitle.textContent = meta.title;
+      pageSub.textContent = meta.subtitle;
+    }
+    closeSidebar();
+    window.scrollTo(0,0);
+  }
+
+  navItems.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      activatePage(btn.getAttribute("data-page"));
+    });
+  });
+
+  function openSidebar(){
+    sidebar.classList.add("is-open");
+    overlay.classList.add("is-visible");
+    hamburger.setAttribute("aria-expanded","true");
+  }
+  function closeSidebar(){
+    if(window.innerWidth <= 1024){
+      sidebar.classList.remove("is-open");
+      overlay.classList.remove("is-visible");
+      hamburger.setAttribute("aria-expanded","false");
+    }
+  }
+  hamburger.addEventListener("click", function(){
+    var isOpen = sidebar.classList.contains("is-open");
+    if(isOpen){ closeSidebar(); } else { openSidebar(); }
+  });
+  overlay.addEventListener("click", closeSidebar);
+
+  window.addEventListener("resize", function(){
+    if(window.innerWidth > 1024){
+      sidebar.classList.remove("is-open");
+      overlay.classList.remove("is-visible");
+    }
+  });
+
+  // range slider live value display
+  document.querySelectorAll(".range").forEach(function(input){
+    var valueEl = input.closest(".field").querySelector(".field__head span:last-child");
+    var suffix = valueEl.textContent.replace(/[0-9.]/g, "").trim();
+    input.addEventListener("input", function(){
+      valueEl.textContent = input.value + (suffix ? " " + suffix : "");
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
